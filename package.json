@@ -1,0 +1,18 @@
+{
+  "scripts": {
+    "dev": "concurrently -n \"WEB,API\" -c \"yellow,blue\" \"pnpm --prefix web dev\" \"uvicorn api.app.main:app --reload\"",
+    "build": "concurrently -n \"WEB,API\" -c \"yellow,blue\" \"pnpm --prefix web build\"",
+    "start": "concurrently -n \"WEB,API\" -c \"yellow,blue\" \"pnpm --prefix web start\" \"gunicorn -w 4 -k uvicorn.workers.UvicornWorker api.app.main:app --bind 0.0.0.0:8000",
+    "api-install": "python -m pip install -r api/requirements.txt",
+    "lint": "concurrently -n \"WEB,API\" -c \"yellow,blue\" \"pnpm --prefix web lint\" \"ruff check api\"",
+    "format": "concurrently -n \"WEB,API\" -c \"yellow,blue\" \"pnpm --prefix web format\" \"ruff format api\"",
+    "lines": "cloc . --exclude-dir=dist,node_modules,.ruff_cache,__pycache__ --include-ext=ts,tsx,py --exclude-ext=d.ts,gen.ts",
+    "lines:large": "cloc . --exclude-dir=dist,node_modules,.ruff_cache,__pycache__ --include-ext=ts,tsx,py --exclude-ext=d.ts,gen.ts --by-file --csv | awk -F, '$5 >= 500 {print $2, $5}'",
+    "tree": "tree -I node_modules -I dist -I node_modules -I public -I .ruff_cache -I __pycache__",
+    "leakcheck": "gitleaks detect --source ."
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "prettier": "^3.8.1"
+  }
+}

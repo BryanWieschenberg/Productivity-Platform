@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+sqlmodel
+fastapi-users[sqlalchemy]
+asyncpg
+greenlet
+python-dotenv
+pyjwt
+psycopg2-binary
