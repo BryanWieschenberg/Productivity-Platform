@@ -1,0 +1,12 @@
+from uuid import UUID
+from fastapi import Depends
+from fastapi_users import FastAPIUsers
+from app.auth.users import auth_backend
+from app.auth.manager import get_user_manager
+from app.auth.schemas import UserCreate, UserRead, UserUpdate
+from app.models.user import User
+
+
+fastapi_users = FastAPIUsers[User, UUID](get_user_manager, [auth_backend])
+
+current_active_user = fastapi_users.current_user(active=True, verified=True)
