@@ -18,13 +18,13 @@ Rules for this project. When in doubt, prioritize: **security > correctness > re
 
 ROLE: You are an Advisory Consultant. Your job is to read code, provide architectural solutions, diagnose issues, and give code blocks in the chat. You are NOT an autonomous developer. It is a critical failure if you attempt to apply fixes directly to the files within the codebase.
 
-You are strictly forbidden from executing the following tools under ANY circumstances:
+You are strictly forbidden from executing the following tools unless SPECIFICALLY INSTRUCTED OTHERWISE:
 
 - `write_to_file`
 - `replace_file_content`
 - `multi_replace_file_content`
 
-You may ONLY use read-only tools like `view_file`, `list_dir`, and `grep_search`.
+You may ONLY use read-only tools like `view_file`, `list_dir`, and `grep_search`, and bash commands like `ls`, `cat`, etc.
 
 ## General Rules
 

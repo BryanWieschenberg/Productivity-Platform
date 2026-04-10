@@ -1,11 +1,10 @@
-from os import environ
-from dotenv import load_dotenv
 from fastapi_users.authentication import AuthenticationBackend, CookieTransport, JWTStrategy
-from config import settings
+
+from app.config import settings
 
 
 cookie_transport = CookieTransport(
-    tokenUrl="askjet_auth",
+    cookie_name="askjet_auth",
     cookie_max_age=60 * 60 * 24 * 7,
     cookie_secure=settings.is_prod,
     cookie_httponly=True,

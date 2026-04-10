@@ -5,6 +5,8 @@ from sqlalchemy import Column
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, SQLModel
 
+from app.models.helpers import fk_cascade
+
 
 class WeekStart(str, Enum):
     SUNDAY = "sunday"
@@ -26,7 +28,7 @@ class Settings(SQLModel, table=True):
     __tablename__ = "settings"
 
     id: UUID = Field(default_factory=uuid4, primary_key=True)
-    user_id: UUID = Field(foreign_key="users.id", unique=True, index=True)
+    user_id: UUID = Field(sa_column=fk_cascade("users.id", unique=True))
 
     timezone: str = Field(default="UTC", max_length=50)
     week_start: WeekStart = Field(default=WeekStart.SUNDAY)

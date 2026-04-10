@@ -22,6 +22,10 @@ class Settings(BaseSettings):
     
     rate_limit_per_minute: int = 60
 
+    recaptcha_site_key: str
+    recaptcha_secret_key: str
+    recaptcha_min_score: float = 0.5
+
     @property
     def email_from(self) -> bool:
         return "AskJet <noreply@askjet.io>" if self.is_prod else "onboarding@resend.dev"

@@ -1,5 +1,9 @@
+from sqlmodel import Relationship
 from uuid import UUID, uuid4
 from sqlmodel import Field, SQLModel
+
+from app.models.oauth_account import OAuthAccount
+
 
 class User(SQLModel, table=True):
     __tablename__ = "users"
@@ -11,4 +15,13 @@ class User(SQLModel, table=True):
     is_active: bool = Field(default=True)
     is_superuser: bool = Field(default=False)
     is_verified: bool = Field(default=False)
+
     username: str = Field(max_length=50)
+    has_usable_password: bool = Field(default=False)
+
+    oauth_accounts: list["OAuthAccount"] = Relationship(
+        sa_relationship_kwargs={
+            "lazy": "joined",
+            "cascade": "all, delete",
+        }
+    )

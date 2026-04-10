@@ -1,14 +1,23 @@
-from fastapi import FastAPI, Depends, HTTPException
+from warnings import filterwarnings
+filterwarnings("ignore", category=UserWarning, module="pydantic")
+
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-from sqlmodel import select
-from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List
 from contextlib import asynccontextmanager
-from .db import create_db_and_tables, get_async_session
-from app.auth.users import fastapi_users, auth_backend, current_active_user
+from slowapi import _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+
+from app.db import create_db_and_tables
+from app.auth.users import auth_backend
+from app.auth.router import fastapi_users
 from app.auth.schemas import UserRead, UserCreate, UserUpdate
 from app.auth.oauth import google_oauth_client, github_oauth_client
+from app.auth.captcha import verify_captcha
+from app.limit import limiter
 from app.config import settings
+from app.routers.settings import router as settings_router
+from app.routers.oauth import router as oauth_router
+from app.limit import limiter, auth_limit
 
 
 @asynccontextmanager
@@ -19,9 +28,12 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="AskJet", lifespan=lifespan)
 
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=[settings.frontend_url],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -31,21 +43,53 @@ app.include_router(
     fastapi_users.get_auth_router(auth_backend),
     prefix="/api/auth",
     tags=["auth"],
+    dependencies=[Depends(auth_limit), Depends(verify_captcha)],
 )
 app.include_router(
     fastapi_users.get_register_router(UserRead, UserCreate),
     prefix="/api/auth",
     tags=["auth"],
+    dependencies=[Depends(auth_limit), Depends(verify_captcha)]
 )
 app.include_router(
     fastapi_users.get_verify_router(UserRead),
     prefix="/api/auth",
     tags=["auth"],
+    dependencies=[Depends(auth_limit)]
 )
 app.include_router(
     fastapi_users.get_reset_password_router(),
     prefix="/api/auth",
     tags=["auth"],
+    dependencies=[Depends(auth_limit), Depends(verify_captcha)]
+)
+
+app.include_router(
+    fastapi_users.get_users_router(UserRead, UserUpdate),
+    prefix="/api/users",
+    tags=["users"],
+)
+
+app.include_router(
+    fastapi_users.get_oauth_associate_router(
+        google_oauth_client,
+        UserRead,
+        settings.secret,
+    ),
+    prefix="/api/auth/associate/google",
+    tags=["auth"],
+    dependencies=[Depends(auth_limit)]
+)
+
+app.include_router(
+    fastapi_users.get_oauth_associate_router(
+        github_oauth_client,
+        UserRead,
+        settings.secret,
+    ),
+    prefix="/api/auth/associate/github",
+    tags=["auth"],
+    dependencies=[Depends(auth_limit)]
 )
 
 app.include_router(
@@ -57,6 +101,7 @@ app.include_router(
     ),
     prefix="/api/auth/google",
     tags=["auth"],
+    dependencies=[Depends(auth_limit)]
 )
 
 app.include_router(
@@ -68,9 +113,20 @@ app.include_router(
     ),
     prefix="/api/auth/github",
     tags=["auth"],
+    dependencies=[Depends(auth_limit)]
 )
+
+app.include_router(settings_router)
+
+app.include_router(oauth_router)
 
 
 @app.get("/health")
 async def get_todos():
     return {"ok": True}
+
+
+# @app.post("/api/jet/propose")
+# @limiter.limit("10/minute")
+# async def jet_propose(request: Request):
+#     pass

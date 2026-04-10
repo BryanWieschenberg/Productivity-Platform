@@ -1,8 +1,8 @@
 {
   "scripts": {
-    "dev": "concurrently -n \"WEB,API\" -c \"yellow,blue\" \"pnpm --prefix apps/web dev\" \"uvicorn apps.api.app.main:app --reload\"",
+    "dev": "concurrently -n \"WEB,API\" -c \"yellow,blue\" \"pnpm --prefix apps/web dev\" \"cd apps/api && uvicorn app.main:app --reload\"",
     "build": "concurrently -n \"WEB,API\" -c \"yellow,blue\" \"pnpm --prefix apps/web build\"",
-    "start": "concurrently -n \"WEB,API\" -c \"yellow,blue\" \"pnpm --prefix apps/web start\" \"gunicorn -w 4 -k uvicorn.workers.UvicornWorker apps.api.app.main:app --bind 0.0.0.0:8000",
+    "start": "concurrently -n \"WEB,API\" -c \"yellow,blue\" \"pnpm --prefix apps/web start\" \"cd apps/api && gunicorn -w 4 -k uvicorn.workers.UvicornWorker app.main:app --bind 0.0.0.0:8000",
     "lint": "concurrently -n \"WEB,API\" -c \"yellow,blue\" \"pnpm --prefix apps/web lint\" \"ruff check apps/api\"",
     "format": "concurrently -n \"WEB,API\" -c \"yellow,blue\" \"pnpm --prefix apps/web format\" \"ruff format apps/api\"",
     "lines": "cloc . --exclude-dir=preprocessing,jobgen,dist,node_modules,.ruff_cache,__pycache__ --include-ext=ts,tsx,py --exclude-ext=d.ts,gen.ts",

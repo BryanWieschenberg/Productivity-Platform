@@ -4,22 +4,56 @@ from fastapi import Depends, Request
 from fastapi_users import BaseUserManager, UUIDIDMixin
 from fastapi_users_db_sqlmodel import SQLModelUserDatabaseAsync
 from sqlalchemy.ext.asyncio import AsyncSession
-from app.db import get_session
+from fastapi_users import InvalidPasswordException
+import resend
+
+from app.db import get_async_session
+from app.auth.schemas import UserCreate
 from app.models.user import User
 from app.models.oauth_account import OAuthAccount
 from app.config import settings
-import resend
+from app.models.settings import Settings
+from app.models.group import Group
+from app.models.calendar import Calendar
 
 resend.api_key = settings.resend_api_key
+
+OAUTH_PATHS = ("google", "github")
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, UUID]):
     reset_password_token_secret = settings.reset_password_token_secret
     verification_token_secret = settings.verification_token_secret
     
+    async def validate_password(self, password: str, user: UserCreate | User) -> None:
+        if len(password) < 8:
+            raise InvalidPasswordException(reason="Password must be at least 8 characters long")
+        if len(password) > 128:
+            raise InvalidPasswordException(reason="Password must be at most 128 characters long")
+        if user.email.lower() in password.lower():
+            raise InvalidPasswordException(reason="Password cannot contain your email")
+
     async def on_after_register(self, user: User, request: Optional[Request] = None):
+        is_oauth_signup = request and any(f"/{p}/" in request.url.path for p in OAUTH_PATHS)
+        if not is_oauth_signup:
+            user.has_usable_password = True
+            session = self.user_db.session
+            session.add(user)
+            await session.commit()
         await self.request_verify(user, request)
     
+    async def on_after_verify(self, user: User, request: Optional[Request] = None):
+        session = self.user_db.session
+
+        user_settings = Settings(user_id=user.id)
+        def_group = Group(user_id=user.id, name="My Tasks", position=0)
+        def_cal = Calendar(user_id=user.id, name="My Calendar", position=0)
+
+        session.add(user_settings)
+        session.add(def_group)
+        session.add(def_cal)
+        await session.commit()
+
     async def on_after_request_verify(self, user: User, token: str, request: Optional[Request] = None):
         resend.Emails.send({
             "from": settings.email_from,
@@ -35,9 +69,15 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, UUID]):
             "subject": "Reset Your AsKJet Password",
             "html": f"<a href=\"{settings.frontend_url}/reset-password?token={token}\">Click here to reset your password</a>",
         })
+    
+    async def on_after_reset_password(self, user: User, request: Optional[Request] = None):
+        user.has_usable_password = True
+        session = self.user_db.session
+        session.add(user)
+        await session.commit()
 
 
-async def get_user_db(session: AsyncSession = Depends(get_session)):
+async def get_user_db(session: AsyncSession = Depends(get_async_session)):
     yield SQLModelUserDatabaseAsync(session, User, OAuthAccount)
 
 

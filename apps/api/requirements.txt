@@ -10,3 +10,4 @@ psycopg2-binary
 resend
 fastapi-users-db-sqlmodel
 httpx_oauth
+slowapi
