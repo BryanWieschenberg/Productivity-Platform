@@ -1,4 +1,4 @@
-import uuid
+from uuid import UUID
 from os import environ
 from typing import Optional
 from dotenv import load_dotenv
@@ -23,7 +23,7 @@ async def get_user_db(session: AsyncSession = Depends(get_async_session)):
     yield SQLAlchemyUserDatabase(session, User)
 
 
-class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
+class UserManager(UUIDIDMixin, BaseUserManager[User, UUID]):
     reset_password_token_secret = SECRET
     verification_token_secret = SECRET
 
@@ -48,7 +48,7 @@ auth_backend = AuthenticationBackend(
     get_strategy=get_jwt_strategy,
 )
 
-fastapi_users = FastAPIUsers[User, uuid.UUID](
+fastapi_users = FastAPIUsers[User, UUID](
     get_user_manager,
     [auth_backend],
 )
