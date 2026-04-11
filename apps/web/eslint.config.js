@@ -34,7 +34,6 @@ export default [
             quotes: "off",
             semi: "off",
             "max-len": "off",
-            curly: "off",
             "no-console": ["warn", { allow: ["error"] }],
             "prefer-const": "error",
             "no-var": "error",

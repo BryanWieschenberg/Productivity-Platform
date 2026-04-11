@@ -1,10 +1,8 @@
 from uuid import UUID
-from fastapi import Depends
 from fastapi_users import FastAPIUsers
 
 from app.auth.users import auth_backend
 from app.auth.manager import get_user_manager
-from app.auth.schemas import UserCreate, UserRead, UserUpdate
 from app.models.user import User
 
 

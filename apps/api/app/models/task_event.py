@@ -1,4 +1,4 @@
-from uuid import UUID, uuid4
+from uuid import UUID
 from sqlmodel import Field, SQLModel
 
 from app.models.helpers import fk_cascade

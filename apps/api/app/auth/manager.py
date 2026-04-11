@@ -1,6 +1,8 @@
+from sqlalchemy.exc import IntegrityError
 from uuid import UUID
 from typing import Optional
-from fastapi import Depends, Request
+from fastapi import Depends, Request, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_users import BaseUserManager, UUIDIDMixin
 from fastapi_users_db_sqlmodel import SQLModelUserDatabaseAsync
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -24,7 +26,7 @@ OAUTH_PATHS = ("google", "github")
 class UserManager(UUIDIDMixin, BaseUserManager[User, UUID]):
     reset_password_token_secret = settings.reset_password_token_secret
     verification_token_secret = settings.verification_token_secret
-    
+
     async def validate_password(self, password: str, user: UserCreate | User) -> None:
         if len(password) < 8:
             raise InvalidPasswordException(reason="Password must be at least 8 characters long")
@@ -52,7 +54,11 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, UUID]):
         session.add(user_settings)
         session.add(def_group)
         session.add(def_cal)
-        await session.commit()
+        
+        try:
+            await session.commit()
+        except IntegrityError:
+            await session.rollback()
 
     async def on_after_request_verify(self, user: User, token: str, request: Optional[Request] = None):
         resend.Emails.send({
@@ -75,6 +81,17 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, UUID]):
         session = self.user_db.session
         session.add(user)
         await session.commit()
+    
+    async def authenticate(self, credentials: OAuth2PasswordRequestForm) -> Optional[User]:
+        user = await super().authenticate(credentials)
+
+        if user and not user.is_verified:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="LOGIN_USER_NOT_VERIFIED"
+            )
+        
+        return user
 
 
 async def get_user_db(session: AsyncSession = Depends(get_async_session)):

@@ -1,6 +1,5 @@
 from uuid import UUID, uuid4
 from enum import Enum
-from typing import Optional
 from sqlalchemy import Column
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlmodel import Field, SQLModel

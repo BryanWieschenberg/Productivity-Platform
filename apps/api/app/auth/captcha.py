@@ -1,14 +1,21 @@
 from httpx import AsyncClient
-from fastapi import Header, HTTPException
+from fastapi import Header, HTTPException, Request
+from typing import Optional
 
 from app.config import settings
 
 VERIFY_URL = "https://www.google.com/recaptcha/api/siteverify"
 
 
-async def verify_captcha(x_captcha_token: str = Header(...)):
-    if not settings.is_prod and x_captcha_token == "dev-bypass":
+async def verify_captcha(request: Request, x_captcha_token: Optional[str] = Header(default=None)):
+    if (
+        (not settings.is_prod and x_captcha_token == "dev-bypass") or
+        (request.url.path.endswith("/logout"))
+    ):
         return
+
+    if not x_captcha_token:
+        raise HTTPException(status_code=400, detail="Missing captcha token")
 
     async with AsyncClient() as client:
         response = await client.post(

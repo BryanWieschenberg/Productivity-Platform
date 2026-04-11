@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 from warnings import filterwarnings
 filterwarnings("ignore", category=UserWarning, module="pydantic")
 
@@ -7,17 +8,17 @@ from contextlib import asynccontextmanager
 from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 
+from app.config import settings
 from app.db import create_db_and_tables
 from app.auth.users import auth_backend
 from app.auth.router import fastapi_users
-from app.auth.schemas import UserRead, UserCreate, UserUpdate
+from app.auth.schemas import UserRead, UserUpdate
 from app.auth.oauth import google_oauth_client, github_oauth_client
 from app.auth.captcha import verify_captcha
-from app.limit import limiter
-from app.config import settings
+from app.limit import limiter, auth_limit
 from app.routers.settings import router as settings_router
 from app.routers.oauth import router as oauth_router
-from app.limit import limiter, auth_limit
+from app.routers.register import router as register_router
 
 
 @asynccontextmanager
@@ -45,18 +46,14 @@ app.include_router(
     tags=["auth"],
     dependencies=[Depends(auth_limit), Depends(verify_captcha)],
 )
-app.include_router(
-    fastapi_users.get_register_router(UserRead, UserCreate),
-    prefix="/api/auth",
-    tags=["auth"],
-    dependencies=[Depends(auth_limit), Depends(verify_captcha)]
-)
+
 app.include_router(
     fastapi_users.get_verify_router(UserRead),
     prefix="/api/auth",
     tags=["auth"],
-    dependencies=[Depends(auth_limit)]
+    dependencies=[Depends(auth_limit), Depends(verify_captcha)]
 )
+
 app.include_router(
     fastapi_users.get_reset_password_router(),
     prefix="/api/auth",
@@ -116,9 +113,11 @@ app.include_router(
     dependencies=[Depends(auth_limit)]
 )
 
-app.include_router(settings_router)
+app.include_router(register_router)
 
 app.include_router(oauth_router)
+
+app.include_router(settings_router)
 
 
 @app.get("/health")
