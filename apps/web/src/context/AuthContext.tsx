@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
-import { api, ApiError } from "@/api/client";
+import { api } from "@/api/client";
 
 type User = {
     id: string;
@@ -26,7 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const data = await api<User>("users/me");
             setUser(data);
         } catch (err) {
-            if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+            if (err?.status === 401 || err?.status === 403) {
                 setUser(null);
             } else {
                 throw err;

@@ -35,6 +35,9 @@ async def update_settings(
         raise HTTPException(status_code=404, detail="Settings not found")
     
     update_data = payload.model_dump(exclude_unset=True)
+
+    print("Payload:", update_data)
+
     for field, val in update_data.items():
         setattr(user_settings, field, val)
     

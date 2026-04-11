@@ -5,11 +5,7 @@ export default function ProtectedRoute() {
     const { user, loading } = useAuth();
 
     if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-bg text-text-muted">
-                Loading...
-            </div>
-        );
+        return <div className="p-8 text-center bg-bg text-text-muted">Loading...</div>;
     }
 
     if (!user) {
