@@ -21,7 +21,7 @@ async def unlink_oauth(
     if provider not in ("google", "github"):
         raise HTTPException(status_code=400, detail="Unknown provider")
     
-    res = await session.exec(select(OAuthAccount).where(OAuthAccount.user_id == user.id))
+    res = await session.execute(select(OAuthAccount).where(OAuthAccount.user_id == user.id))
     accounts = res.all()
 
     target = next((a for a in accounts if a.oauth_name == provider), None)

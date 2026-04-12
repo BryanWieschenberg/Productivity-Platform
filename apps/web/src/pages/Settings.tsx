@@ -5,9 +5,9 @@ import { useAuth } from "@/context/AuthContext";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { type UserSettings } from "@/types/settings";
 import AccountSection from "@/components/settings/AccountSection";
-// import PreferencesSection from "@/components/settings/PreferencesSection";
-// import ConnectedAccountsSection from "@/components/settings/ConnectedAccountsSection";
-// import DangerZoneSection from "@/components/settings/DangerZoneSection";
+import PreferencesSection from "@/components/settings/PreferencesSection";
+import ConnectedAccountsSection from "@/components/settings/ConnectedAccountsSection";
+import DangerZoneSection from "@/components/settings/DangerZoneSection";
 
 export default function Settings() {
     const { user, refresh } = useAuth();

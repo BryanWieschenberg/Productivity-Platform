@@ -9,6 +9,7 @@ import ForgotPassword from "@/pages/auth/ForgotPassword";
 import ResetPassword from "@/pages/auth/ResetPassword";
 import VerifyEmail from "@/pages/auth/VerifyEmail";
 import VerifyPending from "@/pages/auth/VerifyPending";
+import OAuthCallback from "@/pages/auth/OAuthCallback";
 import Workspace from "@/pages/Workspace";
 import Settings from "@/pages/Settings";
 
@@ -40,6 +41,14 @@ export default function App() {
                     element={user ? <Navigate to="/" replace /> : <ForgotPassword />}
                 />
                 <Route path="/reset-password" element={<ResetPassword />} />
+                <Route
+                    path="/oauth/google/callback"
+                    element={<OAuthCallback provider="google" />}
+                />
+                <Route
+                    path="/oauth/github/callback"
+                    element={<OAuthCallback provider="github" />}
+                />
 
                 <Route element={<ProtectedRoute />}>
                     <Route path="/workspace" element={<Workspace />} />

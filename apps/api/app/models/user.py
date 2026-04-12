@@ -16,10 +16,11 @@ class User(SQLModel, table=True):
     is_superuser: bool = Field(default=False)
     is_verified: bool = Field(default=False)
 
-    username: str = Field(max_length=50)
+    username: str = Field(default="", max_length=50)
     has_usable_password: bool = Field(default=False)
 
     oauth_accounts: list["OAuthAccount"] = Relationship(
+        back_populates="user",
         sa_relationship_kwargs={
             "lazy": "joined",
             "cascade": "all, delete",

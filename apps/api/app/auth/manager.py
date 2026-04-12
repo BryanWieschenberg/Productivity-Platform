@@ -1,4 +1,6 @@
+from app.auth.oauth import fetch_oauth_username
 from sqlalchemy.exc import IntegrityError
+from sqlmodel import select
 from uuid import UUID
 from typing import Optional
 from fastapi import Depends, Request, HTTPException, status
@@ -42,7 +44,8 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, UUID]):
             session = self.user_db.session
             session.add(user)
             await session.commit()
-        await self.request_verify(user, request)
+        if not user.is_verified:
+            await self.request_verify(user, request)
     
     async def on_after_verify(self, user: User, request: Optional[Request] = None):
         session = self.user_db.session
@@ -91,6 +94,53 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, UUID]):
                 detail="LOGIN_USER_NOT_VERIFIED"
             )
         
+        return user
+    
+    async def oauth_callback(
+        self,
+        oauth_name: str,
+        access_token: str,
+        account_id: str,
+        account_email: str,
+        expires_at: Optional[int] = None,
+        refresh_token: Optional[str] = None,
+        request: Optional[Request] = None,
+        *,
+        associate_by_email: bool = False,
+        is_verified_by_default: bool = False,
+    ) -> User:
+        user = await super().oauth_callback(
+            oauth_name,
+            access_token,
+            account_id,
+            account_email,
+            expires_at=expires_at,
+            refresh_token=refresh_token,
+            request=request,
+            associate_by_email=associate_by_email,
+            is_verified_by_default=is_verified_by_default,
+        )
+
+        session: AsyncSession = self.user_db.session
+
+        if not user.username:
+            username = await fetch_oauth_username(oauth_name, access_token)
+            if username:
+                user.username = username[:50]
+                session.add(user)
+                await session.commit()
+
+        existing_settings = await session.execute(
+            select(Settings).where(Settings.user_id == user.id)
+        )
+        if existing_settings.first() is None:
+            session.add(Settings(user_id=user.id))
+            session.add(Group(user_id=user.id, name="My Tasks", position=0))
+            session.add(Calendar(user_id=user.id, name="My Calendar", position=0))
+            try:
+                await session.commit()
+            except IntegrityError:
+                await session.rollback()
         return user
 
 

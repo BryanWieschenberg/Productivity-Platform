@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { api, ApiError } from "@/api/client";
 
+import { api, ApiError } from "@/api/client";
 import { useAuth } from "@/context/AuthContext";
 import Section from "@/components/settings/Section";
 
@@ -160,9 +160,9 @@ export default function AccountSection({
                         <button
                             onClick={handleSetPassword}
                             disabled={submitting}
-                            className="px-3 py-1.5 text-sm bg-brand hover:bg-brand-hover text-brand-fg rounded disabled:opacity-50 transition-colors"
+                            className="px-3 py-1.5 text-sm bg-brand hover:bg-brand-hover text-brand-fg rounded disabled:opacity-50 hover:cursor-pointer transition-colors"
                         >
-                            {submitting ? "Sending..." : "Set a password"}
+                            {submitting ? "Sending..." : "Set a Password"}
                         </button>
                     </div>
                 )}

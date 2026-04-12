@@ -1,9 +1,12 @@
 from uuid import UUID
 from fastapi_users import schemas
 from typing import Optional
+from pydantic import ConfigDict
 
 
 class OAuthAccountRead(schemas.BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: UUID
     oauth_name: str
     account_email: str
