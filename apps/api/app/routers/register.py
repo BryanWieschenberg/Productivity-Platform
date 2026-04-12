@@ -25,7 +25,7 @@ async def register(
         await user_manager.on_after_register(user, request)
     except UserAlreadyExists:
         user_manager.password_helper.hash(user_create.password)
-    except InvalidPasswordException as e:
-        raise HTTPException(status_code=400, detail=str(e.reason))
+    except InvalidPasswordException as err:
+        raise HTTPException(status_code=400, detail=str(err.reason))
 
     return {"status": "ok"}

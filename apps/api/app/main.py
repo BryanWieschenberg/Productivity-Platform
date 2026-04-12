@@ -19,6 +19,7 @@ from app.limit import limiter, auth_limit
 from app.routers.settings import router as settings_router
 from app.routers.oauth import router as oauth_router
 from app.routers.register import router as register_router
+from app.routers.account import router as account_router
 
 
 @asynccontextmanager
@@ -119,9 +120,11 @@ app.include_router(oauth_router)
 
 app.include_router(settings_router)
 
+app.include_router(account_router)
+
 
 @app.get("/health")
-async def get_todos():
+async def get_health():
     return {"ok": True}
 
 

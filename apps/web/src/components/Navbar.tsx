@@ -86,7 +86,7 @@ export default function Navbar() {
                     >
                         <Bell className="w-5 h-5" />
                     </button>
-                    {!!user ? (
+                    {signedIn ? (
                         <ProfileMenu />
                     ) : (
                         <div className="flex items-center gap-2">

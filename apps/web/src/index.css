@@ -35,3 +35,14 @@
         @apply bg-bg text-text;
     }
 }
+
+.grecaptcha-badge {
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+body.show-captcha .grecaptcha-badge {
+    visibility: visible;
+    opacity: 1;
+}

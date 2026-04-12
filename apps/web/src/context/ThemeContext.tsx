@@ -23,27 +23,23 @@ function getInitTheme(): ThemePref {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
     const [pref, setPrefState] = useState<ThemePref>(getInitTheme);
-    const [resolved, setResolved] = useState<ThemeResolved>(() =>
-        getInitTheme() === "system" ? getSysTheme() : (getInitTheme() as ThemeResolved),
-    );
+    const [sysTheme, setSysTheme] = useState<ThemeResolved>(getSysTheme);
 
     useEffect(() => {
-        const next: ThemeResolved = pref === "system" ? getSysTheme() : pref;
-        setResolved(next);
+        const mql = window.matchMedia("(prefers-color-scheme: dark)");
+        const handler = () => setSysTheme(getSysTheme());
 
+        mql.addEventListener("change", handler);
+        return () => mql.removeEventListener("change", handler);
+    }, []);
+
+    const resolved: ThemeResolved = pref === "system" ? sysTheme : pref;
+
+    useEffect(() => {
         const root = document.documentElement;
-        root.classList.toggle("dark", next === "dark");
-
+        root.classList.toggle("dark", resolved === "dark");
         localStorage.setItem("theme", pref);
-
-        if (pref === "system") {
-            const mql = window.matchMedia("(prefers-color-scheme: dark)");
-            const handler = () => setResolved(getSysTheme());
-
-            mql.addEventListener("change", handler);
-            return () => mql.removeEventListener("change", handler);
-        }
-    }, [pref]);
+    }, [pref, resolved]);
 
     const setPref = (p: ThemePref) => setPrefState(p);
 

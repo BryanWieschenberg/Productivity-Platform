@@ -2,13 +2,7 @@ import { useAuth } from "@/context/AuthContext";
 import { api } from "@/api/client";
 
 export default function Workspace() {
-    const { user, loading, refresh } = useAuth();
-
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center bg-bg text-text-muted">Loading...</div>
-        );
-    }
+    const { user, refresh } = useAuth();
 
     const handleSignOut = async () => {
         try {

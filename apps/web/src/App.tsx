@@ -10,6 +10,7 @@ import ResetPassword from "@/pages/auth/ResetPassword";
 import VerifyEmail from "@/pages/auth/VerifyEmail";
 import VerifyPending from "@/pages/auth/VerifyPending";
 import Workspace from "@/pages/Workspace";
+import Settings from "@/pages/Settings";
 
 export default function App() {
     const { user } = useAuth();
@@ -42,6 +43,7 @@ export default function App() {
 
                 <Route element={<ProtectedRoute />}>
                     <Route path="/workspace" element={<Workspace />} />
+                    <Route path="/settings" element={<Settings />} />
                 </Route>
 
                 <Route

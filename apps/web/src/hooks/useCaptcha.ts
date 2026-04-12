@@ -33,7 +33,13 @@ function loadScript(): Promise<void> {
 
 export function useCaptcha() {
     useEffect(() => {
+        document.body.classList.add("show-captcha");
+
         loadScript().catch((err) => console.error(err));
+
+        return () => {
+            document.body.classList.remove("show-captcha");
+        };
     }, []);
 
     const execute = useCallback(async (action: string): Promise<string> => {

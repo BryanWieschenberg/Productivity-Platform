@@ -6,6 +6,8 @@ type User = {
     id: string;
     email: string;
     username: string;
+    has_usable_password: boolean;
+    oauth_accounts: { id: string; oauth_name: string; account_email: string }[];
 };
 
 type AuthContextValue = {
