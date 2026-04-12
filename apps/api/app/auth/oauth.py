@@ -18,6 +18,8 @@ class GoogleOAuth2(_GoogleOAuth2):
                 raise GetIdEmailError(response=response)
             data: dict[str, Any] = response.json()
             return data["id"], data.get("email")
+
+
 google_oauth_client = GoogleOAuth2(
     client_id=settings.google_client_id,
     client_secret=settings.google_client_secret,
@@ -26,8 +28,9 @@ github_oauth_client = GitHubOAuth2(
     client_id=settings.github_client_id,
     client_secret=settings.github_client_secret,
 )
+
+
 async def fetch_oauth_username(provider: str, access_token: str) -> str | None:
-    """Fetch a display name / username from the OAuth provider's profile API."""
     try:
         async with AsyncClient() as client:
             if provider == "google":

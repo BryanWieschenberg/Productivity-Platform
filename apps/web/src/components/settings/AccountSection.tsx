@@ -3,6 +3,7 @@ import { useState } from "react";
 import { api, ApiError } from "@/api/client";
 import { useAuth } from "@/context/AuthContext";
 import Section from "@/components/settings/Section";
+import PasswordInput from "../ui/PasswordInput";
 
 export default function AccountSection({
     username,
@@ -26,7 +27,7 @@ export default function AccountSection({
         setPasswordError(null);
 
         if (newPassword !== confirmPassword) {
-            setPasswordError("Passwords do not match");
+            setPasswordError("Passwords do not match.");
             return;
         }
 
@@ -79,9 +80,6 @@ export default function AccountSection({
                     maxLength={50}
                     className={inputClasses}
                 />
-                <p className="text-xs text-text-muted mt-1">
-                    This is your display name, not a unique identifier.
-                </p>
             </div>
 
             <div>
@@ -100,39 +98,53 @@ export default function AccountSection({
                         {!changingPassword ? (
                             <button
                                 onClick={() => setChangingPassword(true)}
-                                className="text-sm text-brand hover:underline"
+                                className="text-sm text-brand hover:underline hover:cursor-pointer"
                             >
                                 Change password
                             </button>
                         ) : (
-                            <div className="space-y-2">
-                                <input
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    handleChangePassword();
+                                }}
+                                className="space-y-2"
+                            >
+                                <PasswordInput
                                     type="password"
                                     placeholder="Current password"
                                     value={currentPassword}
                                     onChange={(e) => setCurrentPassword(e.target.value)}
+                                    minLength={8}
+                                    maxLength={1024}
                                     className={inputClasses}
+                                    required
                                 />
-                                <input
+                                <PasswordInput
                                     type="password"
                                     placeholder="New password"
                                     value={newPassword}
                                     onChange={(e) => setNewPassword(e.target.value)}
                                     minLength={8}
+                                    maxLength={1024}
                                     className={inputClasses}
+                                    required
                                 />
-                                <input
+                                <PasswordInput
                                     type="password"
                                     placeholder="Confirm new password"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
                                     className={inputClasses}
+                                    minLength={8}
+                                    maxLength={1024}
+                                    required
                                 />
                                 <div className="flex gap-2">
                                     <button
-                                        onClick={handleChangePassword}
+                                        type="submit"
                                         disabled={submitting}
-                                        className="px-3 py-1.5 text-sm bg-brand hover:bg-brand-hover text-brand-fg rounded disabled:opacity-50 transition-colors"
+                                        className="px-3 py-1.5 text-sm bg-brand hover:bg-brand-hover hover:cursor-pointer text-brand-fg rounded disabled:opacity-50 transition-colors"
                                     >
                                         {submitting ? "Saving..." : "Update password"}
                                     </button>
@@ -144,12 +156,12 @@ export default function AccountSection({
                                             setConfirmPassword("");
                                             setPasswordError(null);
                                         }}
-                                        className="px-3 py-1.5 text-sm text-text-muted hover:text-text transition-colors"
+                                        className="px-3 py-1.5 text-sm text-text-muted hover:text-text hover:cursor-pointer transition-colors"
                                     >
                                         Cancel
                                     </button>
                                 </div>
-                            </div>
+                            </form>
                         )}
                     </>
                 ) : (

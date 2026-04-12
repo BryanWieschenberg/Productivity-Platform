@@ -1,4 +1,5 @@
 from .user import User
+from .oauth_account import OAuthAccount
 from .settings import Settings, WeekStart, DateFormat, TimeFormat
 from .group import Group
 from .label import Label
@@ -14,6 +15,7 @@ from .view import View
 
 __all__ = [
     "User",
+    "OAuthAccount",
     "Settings",
     "WeekStart",
     "DateFormat",

@@ -1,8 +1,11 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap");
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
+    --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+
     --color-bg: #ffffff;
     --color-surface: #f9fafb;
     --color-surface-hover: #f3f4f6;
@@ -34,6 +37,13 @@
     body {
         @apply bg-bg text-text;
     }
+}
+
+body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    letter-spacing: -0.01em;
 }
 
 .grecaptcha-badge {

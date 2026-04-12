@@ -16,7 +16,7 @@ export default function PasswordInput({ className, ...props }: PasswordInputProp
             <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute inset-y-0 right-0 flex items-center pr-3 text-text-muted hover:text-text focus:outline-none transition-colors"
+                className="absolute inset-y-0 right-0 flex items-center pr-3 text-text-muted hover:text-text hover:cursor-pointer focus:outline-none transition-colors"
                 aria-label={showPassword ? "Hide password" : "Show password"}
                 tabIndex={-1}
             >

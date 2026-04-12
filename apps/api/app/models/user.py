@@ -1,13 +1,14 @@
-from sqlmodel import Relationship
+from typing import TYPE_CHECKING
 from uuid import UUID, uuid4
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 
-from app.models.oauth_account import OAuthAccount
+if TYPE_CHECKING:
+    from app.models.oauth_account import OAuthAccount
 
 
 class User(SQLModel, table=True):
     __tablename__ = "users"
-    
+
     id: UUID = Field(default_factory=uuid4, primary_key=True)
 
     email: str = Field(unique=True, index=True, max_length=320)
@@ -20,9 +21,9 @@ class User(SQLModel, table=True):
     has_usable_password: bool = Field(default=False)
 
     oauth_accounts: list["OAuthAccount"] = Relationship(
-        back_populates="user",
         sa_relationship_kwargs={
             "lazy": "joined",
             "cascade": "all, delete",
-        }
+        },
+        back_populates="user",
     )
